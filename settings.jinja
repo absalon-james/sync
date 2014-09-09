@@ -1,0 +1,11 @@
+{% set original_hosts = salt['mine.get']('roles:web', 'network.ip_addrs', 'grain') %}
+{% set sync = {
+    'xinetd_path': '/etc/xinetd.d',
+    'csync2_path': '/etc/csync2',
+    'hosts': original_hosts,
+    'includes': ['/var/www/'],
+    'excludes': [],
+    'group': 'drupal',
+    'conflict': 'none'
+} %}
+
