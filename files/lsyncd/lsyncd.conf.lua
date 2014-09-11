@@ -1,4 +1,13 @@
+{%- from 'sync/settings.jinja' import sync with context %}
 ----- 
+-- This file is managed by salt.
+-- This was originally taken from an example provided by Floren Munteanu.
+-- The original spawned csync2 with the -C config.id.
+-- This will not work in an environment where most hostnames include
+-- non alphanumeric characters like '-'. Instead, this config will spawn
+-- csync2 with all non alphas removed from the config.syncid value.
+--
+-- Original comments are below:
 -- User configuration file for lsyncd. 
 -- 
 -- This example synchronizes one specific directory through multiple nodes, 
@@ -30,8 +39,9 @@ initSync = {
                 local paths = elist.getPaths(function(etype, path) 
                         return "\t" .. config.syncid .. ":" .. directory .. path 
                 end) 
+                local configid = string.gsub(config.syncid, '%W', '')
                 log("Normal", "Processing syncing list:\n", table.concat(paths, "\n")) 
-                spawn(elist, "/usr/sbin/csync2", "-C", config.syncid, "-x") 
+                spawn(elist, "/usr/sbin/csync2", "-C", configid, "-x") 
         end, 
         collect = function(agent, exitcode) 
                 local config = agent.config 
@@ -68,15 +78,17 @@ initSync = {
         end, 
         init = function(inlet) 
                 local config = inlet.getConfig() 
-                local event = inlet.createBlanketEvent() 
+                local event = inlet.createBlanketEvent()
+                local configid = string.gsub(config.syncid, '%W', '')
                 log("Normal", "Recursive startup sync: ", config.syncid, ":", config.source) 
-                spawn(event, "/usr/sbin/csync2", "-C", config.syncid, "-x") 
+                spawn(event, "/usr/sbin/csync2", "-C", configid, "-x") 
         end, 
         prepare = function(config) 
                 if not config.syncid then 
                         error("Missing 'syncid' parameter.", 4) 
-                end 
-                local c = "csync2_" .. config.syncid .. ".cfg" 
+                end
+                local configid = string.gsub(config.syncid, '%W', '')
+                local c = "csync2_" .. configid .. ".cfg" 
                 local f, err = io.open("/etc/csync2/" .. c, "r") 
                 if not f then 
                         error("Invalid 'syncid' parameter: " .. err, 4) 
@@ -85,8 +97,11 @@ initSync = {
         end 
 } 
 
-local sources = { 
-        ["/var/www"] = "james-heat-web" 
+local sources = {
+{% set hostname = salt['grains.get']('host', 'localhost') %}
+{% for inc in sync.includes %}
+        ["{{ inc }}"] = "{{ hostname }}"
+{% endfor %}
 } 
 for key, value in pairs(sources) do 
         sync {initSync, source=key, syncid=value} 

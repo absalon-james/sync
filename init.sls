@@ -1,13 +1,13 @@
 {%- from 'sync/settings.jinja' import sync with context %}
 
 # Add entries to hostsfile. csync2 likes to use hosts
-{% for host, ips in sync.hosts.iteritems() %}
+{%- for host, ips in sync.hosts.iteritems() %}
 host-{{ host }}:
   host.present:
     - ip: {{ ips[0] }}
     - names:
       - {{ host }}
-{% endfor %}
+{%- endfor %}
 
 # Required software
 sync-software:
@@ -64,7 +64,8 @@ sync-software:
 # Create a directional config for every host on every host.
 # May not be necessary but assuming for now it is at least useful.
 {% for host in sync.hosts.keys() %}
-{{ sync.csync2_path }}/csync2_{{ host }}.cfg:
+{% set clean_host = host.translate(None, '_-') %}
+{{ sync.csync2_path }}/csync2_{{ clean_host }}.cfg:
   file.managed:
     - source: salt://sync/files/csync2/directional.cfg
     - template: jinja
@@ -76,11 +77,11 @@ sync-software:
     - requires:
       - file: {{ sync.csync2_path }}
 
-/etc/csync2_{{ host }}.cfg:
+/etc/csync2_{{ clean_host }}.cfg:
   file.symlink:
-    - target: {{ sync.csync2_path }}/csync2_{{ host }}.cfg
+    - target: {{ sync.csync2_path }}/csync2_{{ clean_host }}.cfg
     - requires:
-      - file: {{ sync.csync2_path }}/csync2_{{ host }}.cfg
+      - file: {{ sync.csync2_path }}/csync2_{{ clean_host }}.cfg
 {% endfor %}
 
 xinetd:
@@ -89,3 +90,25 @@ xinetd:
     - enable: True
     - watch:
       - file: {{ sync.xinetd_path }}/csync2
+
+/etc/lsyncd/lsyncd.conf.lua:
+  file.managed:
+    - source: salt://sync/files/lsyncd/lsyncd.conf.lua
+    - makedirs: True
+    - template: jinja
+    - user: root
+    - group: root
+    - mode: 644
+
+/var/log/lsyncd:
+  file.directory:
+    - makdirs: True
+    - mode: 644
+
+lsyncd:
+  service:
+    - running
+    - enable: True
+    - watch:
+      - file: /etc/lsyncd/lsyncd.conf.lua
+      - file: /var/log/lsyncd

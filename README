@@ -1,0 +1,7 @@
+This repo is a collection of salt states meant to syncronize one or more
+directories across multiple servers. This is accomplished by using lsyncd,
+csync2, and xinetd.
+
+These states are very, very version specific.
+Only tested so far on Ubuntu 12.04, Lsyncd 2.0.4. The lua for the lsyncd
+configuration will need to change if using other versions of lsyncd.
