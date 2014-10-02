@@ -3,9 +3,9 @@
     'xinetd_path': '/etc/xinetd.d',
     'csync2_path': '/etc/csync2',
     'hosts': original_hosts,
-    'includes': ['/var/www'],
-    'excludes': [],
-    'group': 'drupal',
-    'conflict': 'none'
+    'includes': salt['pillar.get']('sync:includes', []),
+    'excludes': salt['pillar.get']('sync:excludes', []),
+    'group': salt['pillar.get']('sync:group', 'default'),
+    'conflict': salt['pillar.get']('sync:conflict', 'none')
 } %}
 
