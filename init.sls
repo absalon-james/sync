@@ -64,7 +64,7 @@ sync-software:
 # Create a directional config for every host on every host.
 # May not be necessary but assuming for now it is at least useful.
 {% for host in sync.hosts.keys() %}
-{% set clean_host = host.translate(None, '_-') %}
+{% set clean_host = host.translate(None, '_-.') %}
 {{ sync.csync2_path }}/csync2_{{ clean_host }}.cfg:
   file.managed:
     - source: salt://sync/files/csync2/directional.cfg
