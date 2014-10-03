@@ -6,7 +6,7 @@ host-{{ host }}:
   host.present:
     - ip: {{ ips[0] }}
     - names:
-      - {{ host }}
+      - {{ sync.hostnames[host] }}
 {%- endfor %}
 
 # Required software
@@ -64,8 +64,9 @@ sync-software:
 # Create a directional config for every host on every host.
 # May not be necessary but assuming for now it is at least useful.
 {% for host in sync.hosts.keys() %}
-{% set clean_host = host.translate(None, '_-.') %}
-{{ sync.csync2_path }}/csync2_{{ clean_host }}.cfg:
+{% set hostname = sync.hostnames[host] %}
+{% set clean_hostname = hostname.translate(None, '_-.') %}
+{{ sync.csync2_path }}/csync2_{{ clean_hostname }}.cfg:
   file.managed:
     - source: salt://sync/files/csync2/directional.cfg
     - template: jinja
@@ -73,15 +74,15 @@ sync-software:
     - group: root
     - mode: 644
     - defaults:
-        current_host: "{{ host }}"
+        current_hostname: "{{ hostname }}"
     - requires:
       - file: {{ sync.csync2_path }}
 
-/etc/csync2_{{ clean_host }}.cfg:
+/etc/csync2_{{ clean_hostname }}.cfg:
   file.symlink:
-    - target: {{ sync.csync2_path }}/csync2_{{ clean_host }}.cfg
+    - target: {{ sync.csync2_path }}/csync2_{{ clean_hostname }}.cfg
     - requires:
-      - file: {{ sync.csync2_path }}/csync2_{{ clean_host }}.cfg
+      - file: {{ sync.csync2_path }}/csync2_{{ clean_hostname }}.cfg
 {% endfor %}
 
 xinetd:

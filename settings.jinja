@@ -1,8 +1,10 @@
 {% set original_hosts = salt['mine.get']('roles:web', 'network.ip_addrs', 'grain') %}
+{% set hostnames = salt['mine.get']('roles:web', 'grains.get', 'grain') %}
 {% set sync = {
     'xinetd_path': '/etc/xinetd.d',
     'csync2_path': '/etc/csync2',
     'hosts': original_hosts,
+    'hostnames': hostnames,
     'includes': salt['pillar.get']('sync:includes', []),
     'excludes': salt['pillar.get']('sync:excludes', []),
     'group': salt['pillar.get']('sync:group', 'default'),
