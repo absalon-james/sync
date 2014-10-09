@@ -8,7 +8,7 @@ configuration will need to change if using other versions of lsyncd. This
 formula may be altered in the future to provide different lsyncd
 configurations for the different versions of lsyncd.
 
-## Salt-Mine
+#### Salt-Mine
 This formula requires the salt-mine in order to function. Each host that is to
 be synced will need to contribute the ip address of the preferred interface as
 well as the hostname to the salt mine.
@@ -20,7 +20,7 @@ mine_functions:
   grains.get: ['host']
 ```
 
-## Pillar
+#### Pillar
 The following example pillar will describe how to customize this formula.
 ```yaml
 sync:
@@ -59,7 +59,7 @@ interfaces:
   private: eth0
 ```
 
-## How to use
+#### How to use
 If applying from a top file:
 ```shell
 salt <sync-targets> state.highstate
@@ -74,6 +74,6 @@ Also, minions in the above command will finish at different times and some minio
 salt <sync-targets> service.start lsyncd
 ```
 
-## Helpful links
+#### Helpful links
 * [csync2](http://oss.linbit.com/csync2/)
 * [lsyncd](https://code.google.com/p/lsyncd/)
