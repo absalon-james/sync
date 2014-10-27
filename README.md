@@ -60,6 +60,16 @@ interfaces:
 ```
 
 #### How to use
+Create the csync2 key before running any of the states.
+
+```shell
+cd sync/files/csync2
+sudo bash generate_key.sh
+```
+
+Note: the above method will install csync2 and rng-tools. rng-tools is used
+to create entropy.
+
 If applying from a top file:
 ```shell
 salt <sync-targets> state.highstate
