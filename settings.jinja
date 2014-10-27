@@ -1,6 +1,6 @@
 # Need to know how to choose which minions to pull from the salt mine.
 {% set target = salt['pillar.get']('sync:target', 'roles:web') %}
-{% set expr_type = salt['pillar.get']('sync:expr_type', 'grains') %}
+{% set expr_type = salt['pillar.get']('sync:expr_type', 'grain') %}
 
 # Need to get ips keyed by minion-id as well as hostames keyed by
 # minion-id
